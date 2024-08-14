@@ -1,15 +1,24 @@
 import http from 'http';
+import fs from 'fs/promises';
+import url from 'url';
+import path from 'path';
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename)
+console.log(__filename, __dirname);
 const PORT = process.env.PORT;
-const server = http.createServer((req, res) => {
+const server = http.createServer( async (req, res) => {
     try {
         if (req.method === 'GET') {
+            let filePath;
             if (req.url === '/') {
-                res.writeHead(200, { 'Context-Type': 'text/html' });
-                res.end('<h1>Home page</h1>');
+            filePath = path.join(__dirname, 'public', 'index.html');
             } else if (req.url === '/about') {
-                res.writeHead(200, { 'Context-Type': 'text/html' });
-                res.end('<h1>About page</h1>');
+                filePath = path.join(__dirname, 'public', 'about.html');
             } 
+            const data = await fs.readFile(filePath);
+            res.setHeader('Content-Type', 'text/html');
+            res.write(data);
+            res.end();
         } else {
             throw new Error('Message not supported')
         }
